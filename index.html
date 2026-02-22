@@ -18,34 +18,38 @@ button { padding: 10px 20px; margin: 5px; }
 <input type="range" min="0" max="180" value="90" id="slider">
 <p>Угол: <span id="angle">90</span>°</p>
 
-<button onclick="setAngle(0)">0°</button>
-<button onclick="setAngle(90)">90°</button>
-<button onclick="setAngle(180)">180°</button>
+<button id="b0">0°</button>
+<button id="b90">90°</button>
+<button id="b180">180°</button>
 
 <script>
-const client = mqtt.connect('ws://46.8.69.144:9001', {
-  username: "esp32",
-  password: "299792458"
+document.addEventListener("DOMContentLoaded", function() {
+
+  const client = mqtt.connect('ws://46.8.69.144:9001', {
+    username: "esp32",
+    password: "299792458"
+  });
+
+  const topic = "servo/angle";
+
+  const slider = document.getElementById("slider");
+  const angleText = document.getElementById("angle");
+
+  function setAngle(val){
+    angleText.innerText = val;
+    slider.value = val;
+    client.publish(topic, String(val));
+  }
+
+  slider.addEventListener("input", function(){
+    setAngle(this.value);
+  });
+
+  document.getElementById("b0").onclick = () => setAngle(0);
+  document.getElementById("b90").onclick = () => setAngle(90);
+  document.getElementById("b180").onclick = () => setAngle(180);
+
 });
-
-const topic = "servo/angle";
-
-client.on('connect', function () {
-  console.log("Connected to MQTT");
-});
-
-const slider = document.getElementById("slider");
-const angleText = document.getElementById("angle");
-
-slider.oninput = function() {
-  setAngle(this.value);
-};
-
-function setAngle(val){
-  angleText.innerText = val;
-  slider.value = val;
-  client.publish(topic, String(val));
-}
 </script>
 
 </body>
